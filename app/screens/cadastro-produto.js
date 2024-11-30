@@ -6,48 +6,83 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
+import CustomButtonBlack from "../components/botaoBlack";
+import CustomNavigation from "../components/CustomNavigation";
+import { useRouter } from "expo-router";
 
-const CadastroProdutoScreen = ({ navigation }) => {
-  // Estados para armazenar os dados do formulário
+const CadastroProdutoScreen = () => {
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
   const [descricao, setDescricao] = useState("");
   const [imagem, setImagem] = useState("");
+  const [cadastroConcluido, setCadastroConcluido] = useState(false);
+  const router = useRouter();
 
   const handleSalvar = () => {
     if (!nome || !preco || !descricao || !imagem) {
       alert("Por favor, preencha todos os campos!");
       return;
     }
-    // Lógica para salvar o produto (pode ser integrado com uma API ou banco de dados)
-    alert(`Produto "${nome}" cadastrado com sucesso!`);
-    navigation.goBack(); // Voltar para a tela anterior
+
+    setCadastroConcluido(true);
   };
+
+  const novoCadastro = () => {
+    setNome("");
+    setPreco("");
+    setDescricao("");
+    setImagem("");
+    setCadastroConcluido(false);
+  };
+
+  const irParaCatalogo = () => {
+    router.push("screens/catalogo");
+  };
+
+  const voltar = () => {
+    router.back();
+  };
+
+  if (cadastroConcluido) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.mensagemSucesso}>
+          Produto cadastrado com sucesso!
+        </Text>
+        <View style={styles.buttonsContainer}>
+          <CustomButtonBlack
+            title="Ir para o catálogo"
+            onPress={irParaCatalogo}
+          />
+          <CustomButtonBlack
+            title="Cadastrar novo produto"
+            onPress={novoCadastro}
+          />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
-      {/* Cabeçalho */}
-      <View style={styles.cabecalho}>
-        <Text style={styles.cabecalhoTitulo}>CUPCAKE STORE</Text>
-      </View>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity onPress={voltar}>
         <Text style={styles.cabecalhoBotao}>Voltar</Text>
       </TouchableOpacity>
+
       {/* Formulário */}
-      <Text style={styles.titulo}>Cadastro de Produto</Text>
+      <Text style={styles.titulo}>Cadastro de produto</Text>
 
       <View style={styles.formulario}>
-        {/* Campo Nome */}
-        <Text style={styles.label}>Nome do Produto</Text>
+        {/* Campos de cadastro */}
+        <Text style={styles.label}>Nome do produto</Text>
         <TextInput
           style={styles.input}
           placeholder="Digite o nome do produto"
           value={nome}
           onChangeText={setNome}
         />
-
-        {/* Campo Preço */}
         <Text style={styles.label}>Preço (R$)</Text>
         <TextInput
           style={styles.input}
@@ -56,8 +91,6 @@ const CadastroProdutoScreen = ({ navigation }) => {
           onChangeText={setPreco}
           keyboardType="numeric"
         />
-
-        {/* Campo Descrição */}
         <Text style={styles.label}>Descrição</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
@@ -66,9 +99,7 @@ const CadastroProdutoScreen = ({ navigation }) => {
           onChangeText={setDescricao}
           multiline
         />
-
-        {/* Campo URL da Imagem */}
-        <Text style={styles.label}>URL da Imagem</Text>
+        <Text style={styles.label}>URL da imagem</Text>
         <TextInput
           style={styles.input}
           placeholder="Digite a URL da imagem"
@@ -78,9 +109,8 @@ const CadastroProdutoScreen = ({ navigation }) => {
       </View>
 
       {/* Botão Salvar */}
-      <TouchableOpacity style={styles.botaoSalvar} onPress={handleSalvar}>
-        <Text style={styles.botaoSalvarTexto}>Salvar produto</Text>
-      </TouchableOpacity>
+      <CustomButtonBlack title="Salvar" onPress={handleSalvar} />
+      <CustomNavigation style={styles.navigation} />
     </ScrollView>
   );
 };
@@ -89,21 +119,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f9f9f9",
-  },
-  cabecalho: {
-    backgroundColor: "#FFC3BE",
-    padding: 15,
-    alignItems: "center",
+    paddingBottom: 20,
   },
   cabecalhoBotao: {
     fontSize: 16,
     color: "#00000",
     marginLeft: 20,
-  },
-  cabecalhoTitulo: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#9B6C67",
   },
   titulo: {
     fontSize: 20,
@@ -134,17 +155,22 @@ const styles = StyleSheet.create({
     height: 80,
     textAlignVertical: "top",
   },
-  botaoSalvar: {
-    backgroundColor: "#000000",
-    marginHorizontal: 20,
-    marginVertical: 20,
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
+  mensagemSucesso: {
+    fontSize: 20,
+    color: "green",
+    textAlign: "center",
+    marginBottom: 20,
   },
-  botaoSalvarTexto: {
-    fontSize: 16,
-    color: "#fff",
+  buttonsContainer: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  navigation: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });
 

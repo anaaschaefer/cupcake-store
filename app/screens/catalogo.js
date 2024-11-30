@@ -7,27 +7,37 @@ import {
   StyleSheet,
   FlatList,
 } from "react-native";
+import CustomButtonBlack from "../components/botaoBlack";
+import CustomNavigation from "../components/CustomNavigation";
+import { useRouter } from "expo-router";
 
-const CatalogoScreen = ({ navigation }) => {
-  // Dados de exemplo para o catálogo de produtos
+const CatalogoScreen = () => {
+  const router = useRouter();
+
   const produtos = [
     {
       id: "1",
       titulo: "Chocolate",
       preco: "A partir de R$5,00",
-      imagem: "https://via.placeholder.com/150", // Substitua por URL real
+      descricao: "Um delicioso cupcake de chocolate.",
+      imagem:
+        "https://img.freepik.com/fotos-premium/um-cupcake-de-chocolate-com-cobertura-de-chocolate-e-granulado-de-chocolate_391229-4323.jpg?w=740", // Substitua pela URL da imagem do produto
     },
     {
       id: "2",
       titulo: "Baunilha",
       preco: "A partir de R$6,00",
-      imagem: "https://via.placeholder.com/150", // Substitua por URL real
+      descricao: "Um cupcake clássico de baunilha.",
+      imagem:
+        "https://i.pinimg.com/736x/ed/87/e8/ed87e84b26193cb02064580f9fce4731.jpg",
     },
     {
       id: "3",
       titulo: "Red Velvet",
       preco: "A partir de R$8,00",
-      imagem: "https://via.placeholder.com/150", // Substitua por URL real
+      descricao: "Cupcake de Red Velvet com cobertura especial.",
+      imagem:
+        "https://www.livewellbakeoften.com/wp-content/uploads/2021/06/Red-Velvet-Cupcakes-3-New-copy.jpg",
     },
   ];
 
@@ -38,9 +48,22 @@ const CatalogoScreen = ({ navigation }) => {
       <View style={styles.cardInfo}>
         <Text style={styles.cardTitulo}>{item.titulo}</Text>
         <Text style={styles.cardPreco}>{item.preco}</Text>
-        <TouchableOpacity style={styles.cardBotao}>
-          <Text style={styles.cardBotaoTexto}>Comprar</Text>
-        </TouchableOpacity>
+        <CustomButtonBlack
+          title="Comprar"
+          onPress={() =>
+            router.push({
+              pathname: "screens/produto",
+              params: {
+                id: item.id,
+                titulo: item.titulo,
+                preco: item.preco,
+                descricao: item.descricao,
+                imagem: item.imagem,
+              },
+            })
+          }
+          style={styles.cardBotao}
+        />
       </View>
     </View>
   );
@@ -51,9 +74,12 @@ const CatalogoScreen = ({ navigation }) => {
       <View style={styles.cabecalho}>
         <Text style={styles.cabecalhoTitulo}>CUPCAKE STORE</Text>
       </View>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.voltarTexto}>Voltar</Text>
+
+      {/* Botão Voltar */}
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.cabecalhoBotao}>Voltar</Text>
       </TouchableOpacity>
+
       {/* Título da página */}
       <Text style={styles.titulo}>Catálogo de cupcakes</Text>
 
@@ -66,22 +92,7 @@ const CatalogoScreen = ({ navigation }) => {
       />
 
       {/* Navegação */}
-      <View style={styles.navegacao}>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Início</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={[styles.navegacaoTexto, styles.navegacaoAtivo]}>
-            Categorias
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Pedidos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+      <CustomNavigation />
     </View>
   );
 };
@@ -96,14 +107,16 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
   },
-  voltarTexto: {
-    fontSize: 16,
-    marginLeft: 20,
-  },
   cabecalhoTitulo: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#9B6C67",
+  },
+  cabecalhoBotao: {
+    fontSize: 16,
+    color: "#000",
+    marginLeft: 20,
+    marginVertical: 10,
   },
   titulo: {
     fontSize: 20,
@@ -124,8 +137,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardImagem: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 130,
   },
   cardInfo: {
     flex: 1,
@@ -148,26 +161,6 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 5,
     alignSelf: "flex-start",
-  },
-  cardBotaoTexto: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  navegacao: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 20,
-    paddingBottom: 30,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
-  },
-  navegacaoTexto: {
-    color: "#808080",
-    fontWeight: "bold",
-  },
-  navegacaoAtivo: {
-    color: "#2D9BF0",
   },
 });
 

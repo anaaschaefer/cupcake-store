@@ -6,6 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import { useRouter } from "expo-router";
+import CustomNavigation from "../components/CustomNavigation";
+import CustomButtonBlack from "../components/botaoBlack";
 
 const PagamentoScreen = () => {
   const [nome, setNome] = useState("");
@@ -14,50 +17,32 @@ const PagamentoScreen = () => {
   const [cvv, setCvv] = useState("");
 
   const handleCadastro = () => {
-    alert("Cadastro realizado com sucesso!");
+    alert("Pagamento realizado com sucesso!");
+    router.push("screens/status-pedido");
   };
+
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.back()}>
         <Text>Voltar</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Pagamento</Text>
-
       <Text>Nome no cartão:</Text>
       <TextInput style={styles.input} value={nome} onChangeText={setNome} />
-
       <Text>Número do cartão:</Text>
       <TextInput style={styles.input} value={numero} onChangeText={setNumero} />
-
       <Text>Data de validade:</Text>
       <TextInput
         style={styles.input}
         value={validade}
         onChangeText={setValidade}
       />
-
       <Text>CVV:</Text>
       <TextInput style={styles.input} value={cvv} onChangeText={setCvv} />
-
-      <TouchableOpacity style={styles.button} onPress={handleCadastro}>
-        <Text style={styles.buttonText}>Pagar</Text>
-      </TouchableOpacity>
-
-      <View style={styles.navegacao}>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Início</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Categorias</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Pedidos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+      <CustomButtonBlack title={"Pagar"} onPress={handleCadastro} />
+      <CustomNavigation />
     </View>
   );
 };
@@ -89,10 +74,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 5,
     elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
   },
   buttonText: {
     color: "#fff",

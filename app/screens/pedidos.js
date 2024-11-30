@@ -7,8 +7,11 @@ import {
   FlatList,
   Alert,
 } from "react-native";
+import CustomNavigation from "../components/CustomNavigation";
+import { useRouter } from "expo-router";
 
 const RecebimentoPedidoScreen = () => {
+  const router = useRouter();
   // Dados fictícios dos pedidos
   const [pedidos, setPedidos] = useState([
     {
@@ -85,6 +88,9 @@ const RecebimentoPedidoScreen = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.cabecalhoBotao}>Voltar</Text>
+      </TouchableOpacity>
       <Text style={styles.cabecalho}>Pedidos recebidos</Text>
       <FlatList
         data={pedidos}
@@ -94,6 +100,7 @@ const RecebimentoPedidoScreen = () => {
           <Text style={styles.textoVazio}>Nenhum pedido disponível.</Text>
         }
       />
+      <CustomNavigation style={styles.navigation} />
     </View>
   );
 };
@@ -102,8 +109,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f9f9f9",
-    paddingHorizontal: 10,
-    paddingVertical: 20,
   },
   cabecalho: {
     fontSize: 24,
@@ -116,10 +121,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
     elevation: 2,
   },
   tituloPedido: {
@@ -162,6 +163,16 @@ const styles = StyleSheet.create({
     color: "#999",
     textAlign: "center",
     marginTop: 20,
+  },
+  navigation: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  cabecalhoBotao: {
+    fontSize: 16,
+    marginLeft: 20,
   },
 });
 

@@ -5,10 +5,13 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Alert,
 } from "react-native";
+import CustomButtonBlack from "../components/botaoBlack";
+import CustomNavigation from "../components/CustomNavigation";
+import { useRouter } from "expo-router";
 
 const CarrinhoScreen = () => {
+  const router = useRouter();
   // Lista de produtos no carrinho
   const [itens, setItens] = useState([
     { id: "1", nome: "Produto A", preco: 50.0 },
@@ -23,15 +26,16 @@ const CarrinhoScreen = () => {
   const removerItem = (id) => {
     const novoCarrinho = itens.filter((item) => item.id !== id);
     setItens(novoCarrinho);
-    Alert.alert("Item removido", "O item foi removido do carrinho.");
+    alert("Item removido", "O item foi removido do carrinho.");
   };
 
   // Finalizar compra
   const finalizarCompra = () => {
-    Alert.alert(
+    alert(
       "Compra finalizada",
       `O total da compra é R$ ${totalPedido.toFixed(2)}.`
     );
+    router.push("screens/pagamento");
   };
 
   // Renderizar cada item do carrinho
@@ -50,8 +54,8 @@ const CarrinhoScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity>
-        <Text>Voltar</Text>
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.cabecalhoBotao}>Voltar</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Carrinho de Compras</Text>
 
@@ -71,27 +75,8 @@ const CarrinhoScreen = () => {
       </View>
 
       {/* Botão de finalizar compra */}
-      <TouchableOpacity
-        style={styles.finalizarButton}
-        onPress={finalizarCompra}
-      >
-        <Text style={styles.finalizarButtonText}>Finalizar pedido</Text>
-      </TouchableOpacity>
-
-      <View style={styles.navegacao}>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Início</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Categorias</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Pedidos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+      <CustomButtonBlack title="Finalizar pedido" onPress={finalizarCompra} />
+      <CustomNavigation />
     </View>
   );
 };
@@ -99,7 +84,6 @@ const CarrinhoScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#f4f4f4",
   },
   title: {
@@ -157,28 +141,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 5,
     elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
   },
   finalizarButtonText: {
     color: "#fff",
     fontSize: 16,
     textAlign: "center",
   },
-  navegacao: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 20,
-    paddingBottom: 30,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
-  },
-  navegacaoTexto: {
-    color: "#808080",
-    fontWeight: "bold",
+  cabecalhoBotao: {
+    fontSize: 16,
+    color: "#00000",
+    marginLeft: 20,
   },
 });
 

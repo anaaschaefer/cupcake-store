@@ -1,26 +1,26 @@
 import React from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-} from "react-native";
+import { View, Text, Image, StyleSheet, FlatList } from "react-native";
+import CustomNavigation from "../components/CustomNavigation";
+import CustomButtonBlack from "../components/botaoBlack";
+import { useRouter } from "expo-router";
 
 const HomeScreen = () => {
+  const router = useRouter();
+
   const destaques = [
     {
       id: "1",
       titulo: "Sabores diversos",
       preco: "A partir de R$5,00",
-      imagem: "https://via.placeholder.com/150",
+      imagem:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOeX5ODNNWX5jQG4X305ptoIg2O2Tgq07kaw&s",
     },
     {
       id: "2",
       titulo: "Dietas especiais",
       preco: "A partir de R$7,00",
-      imagem: "https://via.placeholder.com/150",
+      imagem:
+        "https://nutritotal.com.br/publico-geral/wp-content/uploads/2021/09/Receitas_Cupcake_saudavel_nutritotal_para_todos_novosite.jpg",
     },
   ];
 
@@ -31,9 +31,11 @@ const HomeScreen = () => {
       <View style={styles.cardInfo}>
         <Text style={styles.cardTitulo}>{item.titulo}</Text>
         <Text style={styles.cardPreco}>{item.preco}</Text>
-        <TouchableOpacity style={styles.cardBotao}>
-          <Text style={styles.cardBotaoTexto}>Ver detalhes</Text>
-        </TouchableOpacity>
+        <CustomButtonBlack
+          title={"Ver detalhes"}
+          style={styles.cardBotao}
+          onPress={() => router.push({ pathname: "screens/catalogo" })}
+        />
       </View>
     </View>
   );
@@ -49,18 +51,20 @@ const HomeScreen = () => {
       <View style={styles.banner}>
         <Image
           source={{
-            uri: "https://via.placeholder.com/300x150", // Substitua por uma URL real
+            uri: "https://img.freepik.com/fotos-premium/lindos-cupcakes-naturais-ia-generativa_74760-920.jpg",
           }}
           style={styles.bannerImagem}
         />
-        <View style={styles.bannerTextoContainer}>
+        <View style={styles.overlay}>
           <Text style={styles.bannerTitulo}>Bem-vindo à Cupcake Store!</Text>
           <Text style={styles.bannerDescricao}>
             Deliciosos cupcakes esperando por você.
           </Text>
-          <TouchableOpacity style={styles.bannerBotao}>
-            <Text style={styles.bannerBotaoTexto}>Ver mais</Text>
-          </TouchableOpacity>
+          <CustomButtonBlack
+            title={"Ver mais"}
+            style={styles.bannerBotao}
+            onPress={() => router.push({ pathname: "screens/catalogo" })}
+          />
         </View>
       </View>
 
@@ -73,23 +77,7 @@ const HomeScreen = () => {
         contentContainerStyle={styles.lista}
       />
 
-      {/* Navegação */}
-      <View style={styles.navegacao}>
-        <TouchableOpacity>
-          <Text style={[styles.navegacaoTexto, styles.navegacaoAtivo]}>
-            Início
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Categorias</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Pedidos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+      <CustomNavigation />
     </View>
   );
 };
@@ -110,45 +98,47 @@ const styles = StyleSheet.create({
     color: "#9B6C67",
   },
   banner: {
-    margin: 20,
-    borderRadius: 10,
-    overflow: "hidden",
+    position: "relative",
   },
   bannerImagem: {
     width: "100%",
-    height: 150,
+    height: 200,
   },
-  bannerTextoContainer: {
-    padding: 10,
-    backgroundColor: "#fff",
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo semitransparente
   },
   bannerTitulo: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 5,
-  },
-  bannerDescricao: {
-    fontSize: 14,
-    color: "#777",
+    color: "#fff",
     textAlign: "center",
     marginBottom: 10,
   },
+  bannerDescricao: {
+    fontSize: 16,
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 20,
+  },
   bannerBotao: {
     backgroundColor: "#000000",
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
-    alignSelf: "center",
-  },
-  bannerBotaoTexto: {
-    color: "#fff",
-    fontWeight: "bold",
   },
   destaquesTitulo: {
     fontSize: 18,
     fontWeight: "bold",
     marginHorizontal: 20,
     marginBottom: 10,
+    marginTop: 10,
   },
   lista: {
     paddingHorizontal: 20,
@@ -162,8 +152,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardImagem: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 130,
   },
   cardInfo: {
     flex: 1,
@@ -186,26 +176,6 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 5,
     alignSelf: "flex-start",
-  },
-  cardBotaoTexto: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  navegacao: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 20,
-    paddingBottom: 30,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
-  },
-  navegacaoTexto: {
-    color: "#808080",
-    fontWeight: "bold",
-  },
-  navegacaoAtivo: {
-    color: "#2D9BF0",
   },
 });
 

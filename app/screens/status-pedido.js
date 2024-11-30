@@ -6,9 +6,12 @@ import {
   StyleSheet,
   FlatList,
 } from "react-native";
+import CustomNavigation from "../components/CustomNavigation";
+import { useRouter } from "expo-router";
 
-const PedidosScreen = ({ navigation }) => {
-  // Dados de exemplo para o histórico de pedidos
+const PedidosScreen = () => {
+  const router = useRouter();
+
   const historicoPedidos = [
     { id: "1", numero: "20232", data: "10/10/23", status: "Entregue" },
     { id: "2", numero: "32111", data: "20/04/24", status: "Entregue" },
@@ -32,8 +35,8 @@ const PedidosScreen = ({ navigation }) => {
         <Text style={styles.cabecalhoTitulo}>CUPCAKE STORE</Text>
       </View>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Home")}>
-        <Text style={styles.cabecalhoBotao}>Início</Text>
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.cabecalhoBotao}>Voltar</Text>
       </TouchableOpacity>
 
       {/* Mensagem de confirmação */}
@@ -58,24 +61,7 @@ const PedidosScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.historicoLista}
       />
-
-      {/* Navegação */}
-      <View style={styles.navegacao}>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Início</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Categorias</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={[styles.navegacaoTexto, styles.navegacaoAtivo]}>
-            Pedidos
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.navegacaoTexto}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+      <CustomNavigation />
     </View>
   );
 };
@@ -149,22 +135,6 @@ const styles = StyleSheet.create({
   historicoTexto: {
     fontSize: 16,
     color: "#333",
-  },
-  navegacao: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 20,
-    paddingBottom: 30,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
-  },
-  navegacaoTexto: {
-    color: "#808080",
-    fontWeight: "bold",
-  },
-  navegacaoAtivo: {
-    color: "#FFC3BE",
   },
 });
 

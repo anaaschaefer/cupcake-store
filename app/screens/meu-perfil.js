@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -16,31 +17,98 @@ import {
   faLock,
   faCamera,
   faSignOut,
+  faEye,
+  faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import * as ImagePicker from "expo-image-picker";
 import CustomButtonBlack from "../components/botaoBlack";
 import CustomNavigation from "../components/CustomNavigation";
 
 const MeuPerfilScreen = () => {
-  const [nome, setNome] = useState("");
+  const [username, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [endereco, setEndereco] = useState("");
-  const [senha, setSenha] = useState("");
-  const [foto, setFoto] = useState(null); // Estado para a foto de perfil
+  const [phone, setTelefone] = useState("");
+  const [address, setEndereco] = useState("");
+  const [password, setSenha] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [foto, setFoto] = useState(null);
 
   const router = useRouter();
+  const userId = 1;
 
-  const handleAlterarFoto = () => {
-    alert("Funcionalidade de alterar foto ainda não implementada!");
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/users/${userId}`
+        );
+        const { username, email, phone, address, password } = response.data;
+        setNome(username);
+        setEmail(email);
+        setTelefone(phone);
+        setEndereco(address);
+        setSenha(password);
+      } catch (error) {
+        console.error("Erro ao carregar os dados do usuário:", error);
+        alert("Erro ao carregar os dados do perfil.");
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  const handleAlterarFoto = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("A permissão para acessar as fotos é necessária.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setFoto(result.assets[0].uri);
+    }
   };
 
-  const handleSalvar = () => {
-    alert("Perfil salvo com sucesso!");
-    router.push("screens/inicio");
+  const handleSalvar = async () => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/users/${userId}`,
+        {
+          username,
+          email,
+          phone,
+          address,
+          password,
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Perfil salvo com sucesso!");
+        router.push("screens/inicio");
+      } else {
+        alert("Erro ao salvar o perfil. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("Erro ao salvar os dados do usuário:", error);
+      alert("Erro ao salvar os dados. Verifique sua conexão.");
+    }
   };
 
   const handleSair = () => {
     router.push("screens/login");
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -64,7 +132,14 @@ const MeuPerfilScreen = () => {
       {/* Foto de perfil e botão de alterar */}
       <View style={styles.photoContainer}>
         <TouchableOpacity onPress={handleAlterarFoto}>
-          <FontAwesomeIcon icon={faUser} size={80} style={styles.photoIcon} />
+          <Image
+            source={
+              foto
+                ? { uri: foto }
+                : require("../../assets/images/default-avatar.png")
+            }
+            style={styles.photoIcon}
+          />
           <FontAwesomeIcon
             icon={faCamera}
             size={20}
@@ -79,18 +154,18 @@ const MeuPerfilScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Nome"
-          value={nome}
+          value={username}
           onChangeText={setNome}
         />
       </View>
 
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, styles.emailInput]}>
         <FontAwesomeIcon icon={faEnvelope} style={styles.icon} />
         <TextInput
           style={styles.input}
           placeholder="email@email.com"
           value={email}
-          onChangeText={setEmail}
+          editable={false}
         />
       </View>
 
@@ -99,7 +174,7 @@ const MeuPerfilScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="(00)00000-0000"
-          value={telefone}
+          value={phone}
           onChangeText={setTelefone}
         />
       </View>
@@ -109,7 +184,7 @@ const MeuPerfilScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Rua..."
-          value={endereco}
+          value={address}
           onChangeText={setEndereco}
         />
       </View>
@@ -119,10 +194,20 @@ const MeuPerfilScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="*****"
-          secureTextEntry
-          value={senha}
+          secureTextEntry={!showPassword}
+          value={password}
           onChangeText={setSenha}
         />
+        <TouchableOpacity
+          onPress={togglePasswordVisibility}
+          style={styles.eyeIconContainer}
+        >
+          <FontAwesomeIcon
+            icon={showPassword ? faEye : faEyeSlash}
+            size={20}
+            style={styles.eyeIcon}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Botão Salvar */}
@@ -163,7 +248,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   photoIcon: {
-    color: "#ccc",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 1,
+    borderColor: "#ccc",
     marginBottom: 5,
   },
   cameraIcon: {
@@ -180,15 +269,26 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
-    backgroundColor: "#FFFFFF",
+  },
+  emailInput: {
+    backgroundColor: "#f0f0f0",
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingLeft: 10,
+    fontSize: 16,
   },
   icon: {
     color: "#7F7F7F",
     marginRight: 10,
   },
-  input: {
-    flex: 1,
-    height: 40,
+  eyeIconContainer: {
+    position: "absolute",
+    right: 10,
+  },
+  eyeIcon: {
+    color: "#7F7F7F",
   },
 });
 

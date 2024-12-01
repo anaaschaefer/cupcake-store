@@ -35,9 +35,8 @@ const RecuperarSenhaScreen = () => {
       return;
     }
 
-    // Simula a redefinição de senha
     alert("Sucesso! Sua senha foi redefinida com sucesso!");
-    router.push("screens/login"); // Redireciona para a tela de login
+    router.push("screens/login");
   };
 
   return (

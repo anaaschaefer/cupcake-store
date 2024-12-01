@@ -8,25 +8,43 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import axios from "axios";
 import CustomButtonBlack from "../components/botaoBlack";
 import CustomNavigation from "../components/CustomNavigation";
 import { useRouter } from "expo-router";
 
 const CadastroProdutoScreen = () => {
-  const [nome, setNome] = useState("");
-  const [preco, setPreco] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [imagem, setImagem] = useState("");
+  const [name, setNome] = useState("");
+  const [price, setPreco] = useState("");
+  const [description, setDescricao] = useState("");
+  const [image, setImagem] = useState("");
   const [cadastroConcluido, setCadastroConcluido] = useState(false);
   const router = useRouter();
 
-  const handleSalvar = () => {
-    if (!nome || !preco || !descricao || !imagem) {
-      alert("Por favor, preencha todos os campos!");
+  const handleSalvar = async () => {
+    if (!name || !price || !description || !image) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos!");
       return;
     }
 
-    setCadastroConcluido(true);
+    try {
+      const response = await axios.post("http://localhost:8080/cupcakes", {
+        name: name,
+        price: price,
+        description: description,
+        image: image,
+      });
+
+      if (response.status === 201) {
+        Alert.alert("Sucesso", "Produto cadastrado com sucesso!");
+        setCadastroConcluido(true);
+      } else {
+        Alert.alert("Erro", "Ocorreu um erro ao cadastrar o produto.");
+      }
+    } catch (error) {
+      console.error("Erro ao cadastrar o produto:", error);
+      Alert.alert("Erro", "Não foi possível cadastrar o produto.");
+    }
   };
 
   const novoCadastro = () => {
@@ -80,14 +98,14 @@ const CadastroProdutoScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Digite o nome do produto"
-          value={nome}
+          value={name}
           onChangeText={setNome}
         />
         <Text style={styles.label}>Preço (R$)</Text>
         <TextInput
           style={styles.input}
           placeholder="Digite o preço"
-          value={preco}
+          value={price}
           onChangeText={setPreco}
           keyboardType="numeric"
         />
@@ -95,7 +113,7 @@ const CadastroProdutoScreen = () => {
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Digite a descrição do produto"
-          value={descricao}
+          value={description}
           onChangeText={setDescricao}
           multiline
         />
@@ -103,7 +121,7 @@ const CadastroProdutoScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Digite a URL da imagem"
-          value={imagem}
+          value={image}
           onChangeText={setImagem}
         />
       </View>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,59 +6,50 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  Alert,
 } from "react-native";
+import axios from "axios";
 import CustomButtonBlack from "../components/botaoBlack";
 import CustomNavigation from "../components/CustomNavigation";
 import { useRouter } from "expo-router";
 
 const CatalogoScreen = () => {
   const router = useRouter();
+  const [produtos, setProdutos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const produtos = [
-    {
-      id: "1",
-      titulo: "Chocolate",
-      preco: "A partir de R$5,00",
-      descricao: "Um delicioso cupcake de chocolate.",
-      imagem:
-        "https://img.freepik.com/fotos-premium/um-cupcake-de-chocolate-com-cobertura-de-chocolate-e-granulado-de-chocolate_391229-4323.jpg?w=740", // Substitua pela URL da imagem do produto
-    },
-    {
-      id: "2",
-      titulo: "Baunilha",
-      preco: "A partir de R$6,00",
-      descricao: "Um cupcake clássico de baunilha.",
-      imagem:
-        "https://i.pinimg.com/736x/ed/87/e8/ed87e84b26193cb02064580f9fce4731.jpg",
-    },
-    {
-      id: "3",
-      titulo: "Red Velvet",
-      preco: "A partir de R$8,00",
-      descricao: "Cupcake de Red Velvet com cobertura especial.",
-      imagem:
-        "https://www.livewellbakeoften.com/wp-content/uploads/2021/06/Red-Velvet-Cupcakes-3-New-copy.jpg",
-    },
-  ];
+  const fetchCupcakes = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/cupcakes");
+      setProdutos(response.data);
+    } catch (error) {
+      Alert.alert(
+        "Erro",
+        "Não foi possível carregar os cupcakes. Tente novamente."
+      );
+      console.error("Erro na requisição:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Renderizar cada item da lista
+  useEffect(() => {
+    fetchCupcakes();
+  }, []);
+
   const renderProduto = ({ item }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.imagem }} style={styles.cardImagem} />
+      <Image source={{ uri: item.image }} style={styles.cardImagem} />
       <View style={styles.cardInfo}>
-        <Text style={styles.cardTitulo}>{item.titulo}</Text>
-        <Text style={styles.cardPreco}>{item.preco}</Text>
+        <Text style={styles.cardTitulo}>{item.name}</Text>
+        <Text style={styles.cardPreco}>{`R$ ${item.price}`}</Text>
         <CustomButtonBlack
           title="Comprar"
           onPress={() =>
             router.push({
-              pathname: "screens/produto",
+              pathname: "/screens/produto",
               params: {
                 id: item.id,
-                titulo: item.titulo,
-                preco: item.preco,
-                descricao: item.descricao,
-                imagem: item.imagem,
               },
             })
           }
@@ -84,12 +75,16 @@ const CatalogoScreen = () => {
       <Text style={styles.titulo}>Catálogo de cupcakes</Text>
 
       {/* Lista de produtos */}
-      <FlatList
-        data={produtos}
-        renderItem={renderProduto}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.lista}
-      />
+      {loading ? (
+        <Text style={styles.loadingText}>Carregando cupcakes...</Text>
+      ) : (
+        <FlatList
+          data={produtos}
+          renderItem={renderProduto}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.lista}
+        />
+      )}
 
       {/* Navegação */}
       <CustomNavigation />
@@ -124,6 +119,12 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     textAlign: "center",
     color: "#808080",
+  },
+  loadingText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#808080",
+    marginTop: 20,
   },
   lista: {
     paddingHorizontal: 20,

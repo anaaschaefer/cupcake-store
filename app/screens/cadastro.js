@@ -15,20 +15,36 @@ import {
   faHome,
   faLock,
 } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 
 const CadastroScreen = () => {
-  const [nome, setNome] = useState("");
+  const [username, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [endereco, setEndereco] = useState("");
-  const [senha, setSenha] = useState("");
+  const [phone, setTelefone] = useState("");
+  const [address, setEndereco] = useState("");
+  const [password, setSenha] = useState("");
   const router = useRouter();
 
-  const handleCadastro = () => {
-    // Validação simples
-    if (nome && email && telefone && endereco && senha) {
-      alert("Cadastro realizado com sucesso!");
-      router.push("screens/meu-perfil"); // Redireciona para a tela "Meu Perfil"
+  const handleCadastro = async () => {
+    if (username && email && phone && address && password) {
+      try {
+        const response = await axios.post("http://localhost:8080/users", {
+          username,
+          email,
+          phone,
+          address,
+          password,
+        });
+        if (response.status === 201 || response.status === 200) {
+          alert("Cadastro realizado com sucesso!");
+          router.push("screens/meu-perfil");
+        } else {
+          alert("Ocorreu um erro ao cadastrar. Tente novamente.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Erro ao se conectar com o servidor. Verifique sua conexão.");
+      }
     } else {
       alert("Por favor, preencha todos os campos!");
     }
@@ -46,7 +62,7 @@ const CadastroScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Nome"
-          value={nome}
+          value={username}
           onChangeText={setNome}
         />
       </View>
@@ -66,7 +82,7 @@ const CadastroScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="(00)00000-0000"
-          value={telefone}
+          value={phone}
           onChangeText={setTelefone}
         />
       </View>
@@ -76,7 +92,7 @@ const CadastroScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Rua..."
-          value={endereco}
+          value={address}
           onChangeText={setEndereco}
         />
       </View>
@@ -87,7 +103,7 @@ const CadastroScreen = () => {
           style={styles.input}
           placeholder="*****"
           secureTextEntry
-          value={senha}
+          value={password}
           onChangeText={setSenha}
         />
       </View>

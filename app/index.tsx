@@ -27,11 +27,8 @@ const HomeScreen = () => {
           </Text>
        </View>
       </View>
-     <TouchableOpacity style={styles.botaoBlack} onPress={() => router.push({pathname: '/screens/login'})}>
-       <Text style={styles.botaoBlackTexto}>Login cliente</Text>
-     </TouchableOpacity>
       <TouchableOpacity style={styles.botaoBlack} onPress={() => router.push({pathname: '/screens/login'})}>
-       <Text style={styles.botaoBlackTexto}>Login profissional</Text>
+       <Text style={styles.botaoBlackTexto}>Login</Text>
      </TouchableOpacity>
    </View>
   );

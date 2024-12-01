@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 
 const RecebimentoPedidoScreen = () => {
   const router = useRouter();
-  // Dados fictícios dos pedidos
+
   const [pedidos, setPedidos] = useState([
     {
       id: "1",
@@ -33,7 +33,6 @@ const RecebimentoPedidoScreen = () => {
     },
   ]);
 
-  // Função para alterar o status para "Em preparação"
   const alterarParaPreparacao = (id) => {
     setPedidos((pedidosAtuais) =>
       pedidosAtuais.map((pedido) =>
@@ -43,7 +42,6 @@ const RecebimentoPedidoScreen = () => {
     Alert.alert("Status atualizado", "O pedido agora está em preparação.");
   };
 
-  // Função para alterar o status para "Finalizado"
   const finalizarPedido = (id) => {
     setPedidos((pedidosAtuais) =>
       pedidosAtuais.map((pedido) =>

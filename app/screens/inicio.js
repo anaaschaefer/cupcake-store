@@ -24,7 +24,6 @@ const HomeScreen = () => {
     },
   ];
 
-  // Renderizar cada item da lista
   const renderDestaque = ({ item }) => (
     <View style={styles.card}>
       <Image source={{ uri: item.imagem }} style={styles.cardImagem} />
@@ -112,7 +111,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo semitransparente
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   bannerTitulo: {
     fontSize: 24,

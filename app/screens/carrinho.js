@@ -12,24 +12,21 @@ import { useRouter } from "expo-router";
 
 const CarrinhoScreen = () => {
   const router = useRouter();
-  // Lista de produtos no carrinho
+
   const [itens, setItens] = useState([
     { id: "1", nome: "Produto A", preco: 50.0 },
     { id: "2", nome: "Produto B", preco: 30.0 },
     { id: "3", nome: "Produto C", preco: 20.0 },
   ]);
 
-  // Calcular o total do pedido
   const totalPedido = itens.reduce((soma, item) => soma + item.preco, 0);
 
-  // Remover item do carrinho
   const removerItem = (id) => {
     const novoCarrinho = itens.filter((item) => item.id !== id);
     setItens(novoCarrinho);
     alert("Item removido", "O item foi removido do carrinho.");
   };
 
-  // Finalizar compra
   const finalizarCompra = () => {
     alert(
       "Compra finalizada",
@@ -38,7 +35,6 @@ const CarrinhoScreen = () => {
     router.push("screens/pagamento");
   };
 
-  // Renderizar cada item do carrinho
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <Text style={styles.itemNome}>{item.nome}</Text>

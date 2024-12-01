@@ -19,7 +19,6 @@ const PedidosScreen = () => {
     { id: "4", numero: "33333", data: "20/05/24", status: "Preparação" },
   ];
 
-  // Renderizar cada item da lista
   const renderPedido = ({ item }) => (
     <View style={styles.historicoItem}>
       <Text style={styles.historicoTexto}>

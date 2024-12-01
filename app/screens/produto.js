@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,34 +10,76 @@ import {
 import CustomNavigation from "../components/CustomNavigation";
 import CustomButtonBlack from "../components/botaoBlack";
 import { useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import axios from "axios";
 
 const ProdutoScreen = () => {
-  const produto = {
-    id: "1",
-    nome: "Cupcake de chocolate",
-    descricao:
-      "Delicioso cupcake de chocolate com cobertura de chocolate ao leite e granulados.",
-    preco: 5.0,
-    imagem:
-      "https://img.freepik.com/fotos-premium/um-cupcake-de-chocolate-com-cobertura-de-chocolate-e-granulado-de-chocolate_391229-4323.jpg?w=740",
-  };
-
+  const item = useLocalSearchParams();
+  const id = item.id;
+  const [produto, setProduto] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
 
-  // Estado para o modal de confirmação
-  const [modalVisible, setModalVisible] = useState(false);
+  useEffect(() => {
+    if (id) {
+      fetchProduto(id);
+    } else {
+      console.error("Produto ID não encontrado");
+      setLoading(false);
+    }
+  }, [id]);
+
+  if (!id) return;
+
+  const fetchProduto = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/cupcakes/${id}`);
+      console.log(response.data);
+      setProduto(response.data);
+    } catch (error) {
+      console.error("Erro na requisição:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Carregando produto...</Text>
+      </View>
+    );
+  }
+
+  if (!produto) {
+    return (
+      <View style={styles.container}>
+        <Text>Produto não encontrado.</Text>
+      </View>
+    );
+  }
+
+  if (!produto) {
+    return (
+      <View style={styles.container}>
+        <Text>Produto não encontrado.</Text>
+      </View>
+    );
+  }
 
   const adicionarAoCarrinho = () => {
-    setModalVisible(true); // Exibir o modal ao adicionar ao carrinho
+    setModalVisible(true);
   };
 
   const irParaCarrinho = () => {
-    setModalVisible(false); // Fechar o modal
-    router.push("screens/carrinho"); // Navegar para o carrinho
+    setModalVisible(false);
+    router.push("screens/carrinho");
   };
 
   const continuarComprando = () => {
-    setModalVisible(false); // Fechar o modal
+    setModalVisible(false);
+    router.push("screens/catalogo");
   };
 
   return (
@@ -52,10 +94,10 @@ const ProdutoScreen = () => {
 
       {/* Conteúdo da tela */}
       <View style={styles.content}>
-        <Image source={{ uri: produto.imagem }} style={styles.imagem} />
-        <Text style={styles.nome}>{produto.nome}</Text>
-        <Text style={styles.descricao}>{produto.descricao}</Text>
-        <Text style={styles.preco}>Valor: R$ {produto.preco.toFixed(2)}</Text>
+        <Image source={{ uri: produto.image }} style={styles.imagem} />
+        <Text style={styles.nome}>{produto.name}</Text>
+        <Text style={styles.descricao}>{produto.description}</Text>
+        <Text style={styles.preco}>Valor: R$ {produto.price.toFixed(2)}</Text>
         <CustomButtonBlack
           title="Adicionar ao carrinho"
           style={styles.botao}
@@ -73,7 +115,7 @@ const ProdutoScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>
-              {produto.nome} foi adicionado ao carrinho.
+              {produto.name} foi adicionado ao carrinho.
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity

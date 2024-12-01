@@ -7,34 +7,56 @@ import {
   StyleSheet,
 } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUserCircle,
+  faEye,
+  faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "expo-router";
+import axios from "axios";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const router = useRouter(); // Usa o hook do Expo Router
+  const [password, setSenha] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = () => {
-    if (email === "usuario@exemplo.com" && senha === "senha123") {
-      alert("Login bem-sucedido!");
-      router.push("screens/inicio"); // Redireciona para a tela inicial
-    } else {
-      alert("Email ou senha incorretos!");
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/login", {
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        router.push("screens/inicio");
+      } else {
+        alert("Erro inesperado! Tente novamente.");
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        alert("Email ou senha incorretos!");
+      } else {
+        console.error("Erro ao realizar login:", error);
+        alert("Ocorreu um erro. Verifique sua conexão ou tente mais tarde.");
+      }
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
   const handleCadastro = () => {
-    router.push("screens/cadastro"); // Navega para a tela de cadastro
+    router.push("screens/cadastro");
   };
 
   const handleEsqueciSenha = () => {
-    router.push("screens/recuperar-senha"); // Navega para a tela de recuperação de senha
+    router.push("screens/recuperar-senha");
   };
 
   return (
     <View style={styles.container}>
-      {/* Ícone de Usuário */}
       <Text style={styles.title}>CUPCAKE STORE</Text>
 
       <FontAwesomeIcon icon={faUserCircle} size={200} style={styles.icon} />
@@ -48,13 +70,25 @@ const LoginScreen = () => {
       />
 
       <Text style={styles.infoInput}>Senha:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="******"
-        secureTextEntry
-        value={senha}
-        onChangeText={setSenha}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.inputPassword}
+          placeholder="******"
+          secureTextEntry={!isPasswordVisible}
+          value={password}
+          onChangeText={setSenha}
+        />
+        <TouchableOpacity
+          onPress={togglePasswordVisibility}
+          style={styles.iconContainer}
+        >
+          <FontAwesomeIcon
+            icon={isPasswordVisible ? faEye : faEyeSlash}
+            size={20}
+            style={styles.eyeIcon}
+          />
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Entrar</Text>
@@ -95,13 +129,34 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    width: "100%", // Largura total do input
+    width: "100%",
     borderColor: "#ccc",
     borderWidth: 1,
     marginBottom: 10,
     paddingLeft: 8,
     borderRadius: 5,
     backgroundColor: "#FFFFFF",
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    backgroundColor: "#FFFFFF",
+    marginBottom: 10,
+    width: "100%",
+  },
+  inputPassword: {
+    flex: 1,
+    height: 40,
+    paddingLeft: 8,
+  },
+  iconContainer: {
+    padding: 10,
+  },
+  eyeIcon: {
+    color: "#808080",
   },
   linksContainer: {
     marginTop: 20,
@@ -117,7 +172,6 @@ const styles = StyleSheet.create({
   },
   infoInput: {
     color: "#808080",
-    justifyContent: "space-between",
     width: "100%",
   },
   button: {

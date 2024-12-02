@@ -37,7 +37,7 @@ const CarrinhoScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      carregarCarrinho(); // Recarrega o carrinho toda vez que a tela ganha foco
+      carregarCarrinho();
     }, [])
   );
 
@@ -117,7 +117,7 @@ const CarrinhoScreen = () => {
 
       <FlatList
         data={itens}
-        keyExtractor={(item, index) => index.toString()} // Usa o índice como chave única
+        keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
         style={styles.lista}
       />
@@ -284,13 +284,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 5,
     right: 10,
-    backgroundColor: "transparent", // Sem fundo
+    backgroundColor: "transparent",
     padding: 5,
     zIndex: 10,
   },
   closeButtonText: {
     fontSize: 18,
-    color: "#555", // Cor do texto
+    color: "#555",
     fontWeight: "bold",
   },
 });

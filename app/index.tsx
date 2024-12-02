@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import { useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeScreen = () => {
   const router = useRouter();
+  useEffect(() => {
+    const checkUser = async () => {
+      const id = await AsyncStorage.getItem("id");
+      if (id) {
+        router.replace("screens/inicio");
+      }
+    };
+
+    checkUser();
+  }, [router]);
  return (
     <View style={styles.container}>
       {/* Cabeçalho */}

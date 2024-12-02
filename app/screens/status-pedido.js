@@ -16,7 +16,6 @@ const PedidosScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Função para buscar os pedidos da API
   const fetchPedidos = async () => {
     try {
       const response = await fetch("http://localhost:8080/market-cart");

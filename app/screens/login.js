@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,12 +15,25 @@ import {
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { UserContext } from "../context/UserContext";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setSenha] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const { setUser } = useContext(UserContext);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const id = await AsyncStorage.getItem("id");
+      if (id) {
+        router.replace("screens/inicio");
+      }
+    };
+
+    checkUser();
+  }, [router]);
 
   const handleLogin = async () => {
     try {
@@ -28,9 +41,9 @@ const LoginScreen = () => {
         email,
         password,
       });
-
+      setUser(response.data);
       if (response.status === 200) {
-        const id = response.data.id; // Supondo que o backend retorne userId
+        const id = response.data.id;
         await AsyncStorage.setItem("id", id.toString());
         router.push("screens/inicio");
       } else {

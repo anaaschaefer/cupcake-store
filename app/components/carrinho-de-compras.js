@@ -5,7 +5,6 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 const CarrinhoDeCompras = ({ quantidadeInicial = 0, onPress }) => {
   const [quantidade, setQuantidade] = useState(quantidadeInicial);
 
-  // Atualizar a quantidade no carrinho
   const adicionarAoCarrinho = () => {
     setQuantidade(quantidade + 1);
   };

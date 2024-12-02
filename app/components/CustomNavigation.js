@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { Link, usePathname } from "expo-router";
+import { UserContext } from "../context/UserContext";
 
-const CustomNavigation = ({ userProfile }) => {
-  const pathname = usePathname(); // Obtém a rota atual
-  const isAdmin = userProfile === "admin"; // Verifica se o perfil do usuário é administrador
+const CustomNavigation = () => {
+  const { user } = useContext(UserContext);
+  const pathname = usePathname();
+  const isAdmin = user?.userType === "ADMIN";
 
-  // Função para verificar se deve navegar
   const shouldNavigate = (targetPath) => pathname !== targetPath;
 
   return (
@@ -80,7 +81,6 @@ const CustomNavigation = ({ userProfile }) => {
   );
 };
 
-// Obtém as dimensões da tela para ajustar o menu
 const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({

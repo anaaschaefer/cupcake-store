@@ -12,6 +12,7 @@ import axios from "axios";
 import CustomButtonBlack from "../components/botaoBlack";
 import CustomNavigation from "../components/CustomNavigation";
 import { useRouter } from "expo-router";
+import RequireAuth from "../components/RequireAuth";
 
 const CadastroProdutoScreen = () => {
   const [name, setNome] = useState("");
@@ -192,4 +193,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CadastroProdutoScreen;
+export default function CadastroProdutoScreenWrapper() {
+  return (
+    <RequireAuth userType="ADMIN">
+      <CadastroProdutoScreen />
+    </RequireAuth>
+  );
+}

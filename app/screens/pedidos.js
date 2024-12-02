@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import CustomNavigation from "../components/CustomNavigation";
 import { useRouter } from "expo-router";
+import RequireAuth from "../components/RequireAuth";
+import axios from "axios";
 
 const RecebimentoPedidoScreen = () => {
   const router = useRouter();
@@ -17,7 +19,6 @@ const RecebimentoPedidoScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Função para buscar os pedidos do backend
   const fetchPedidos = async () => {
     try {
       setLoading(true);
@@ -26,7 +27,7 @@ const RecebimentoPedidoScreen = () => {
         throw new Error("Erro ao carregar pedidos");
       }
       const data = await response.json();
-      setPedidos(Array.isArray(data) ? data : []); // Garante que pedidos será um array
+      setPedidos(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -38,38 +39,37 @@ const RecebimentoPedidoScreen = () => {
     fetchPedidos();
   }, []);
 
-  const alterarParaPreparacao = (id) => {
-    setPedidos((pedidosAtuais) =>
-      pedidosAtuais.map((pedido) =>
-        pedido.id === id ? { ...pedido, status: "Em preparação" } : pedido
-      )
-    );
-    Alert.alert("Status atualizado", "O pedido agora está em preparação.");
-  };
+  const alterarParaPreparacao = async (id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/market-cart/${id}`
+      );
 
-  const finalizarPedido = (id) => {
-    setPedidos((pedidosAtuais) =>
-      pedidosAtuais.map((pedido) =>
-        pedido.id === id ? { ...pedido, status: "Finalizado" } : pedido
-      )
-    );
-    Alert.alert("Pedido finalizado", "O pedido foi marcado como finalizado.");
+      const pedidosAtualizados = await axios.get(
+        "http://localhost:8080/market-cart"
+      );
+
+      setPedidos(pedidosAtualizados.data);
+
+      Alert.alert("Status atualizado", "O pedido agora está em preparação.");
+    } catch (error) {
+      console.error("Erro ao atualizar o status:", error);
+    }
   };
 
   const renderPedido = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.tituloPedido}>Pedido {item.numero}</Text>
-      <Text style={styles.texto}>Cliente: {item.cliente}</Text>
-      <Text style={styles.texto}>Status: {item.status}</Text>
+      <Text style={styles.texto}>Cliente: {item.user.username}</Text>
+      <Text style={styles.texto}>Status: {item.ticketStatus}</Text>
 
       <Text style={styles.subtitulo}>Produtos:</Text>
-      {item.produtos.map((produto) => (
+      {item.cupcakes.map((produto) => (
         <Text key={produto.id} style={styles.texto}>
-          - {produto.nome} (x{produto.quantidade})
+          - {produto.name}
         </Text>
       ))}
-
-      {item.status === "Aguardando confirmação" && (
+      {item.ticketStatus === "Pendente" && (
         <TouchableOpacity
           style={styles.botaoAlterar}
           onPress={() => alterarParaPreparacao(item.id)}
@@ -78,10 +78,19 @@ const RecebimentoPedidoScreen = () => {
         </TouchableOpacity>
       )}
 
-      {item.status === "Em preparação" && (
+      {item.ticketStatus === "Pronto" && (
+        <TouchableOpacity
+          style={styles.botaoAlterar}
+          onPress={() => alterarParaPreparacao(item.id)}
+        >
+          <Text style={styles.botaoTexto}>Confirmar entrega</Text>
+        </TouchableOpacity>
+      )}
+
+      {item.ticketStatus === "Em preparação" && (
         <TouchableOpacity
           style={styles.botaoFinalizar}
-          onPress={() => finalizarPedido(item.id)}
+          onPress={() => alterarParaPreparacao(item.id)}
         >
           <Text style={styles.botaoTexto}>Finalizar pedido</Text>
         </TouchableOpacity>
@@ -102,7 +111,7 @@ const RecebimentoPedidoScreen = () => {
         <Text style={styles.errorTexto}>{error}</Text>
       ) : (
         <FlatList
-          data={pedidos || []} // Garante que será um array
+          data={pedidos || []}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderPedido}
           ListEmptyComponent={
@@ -193,4 +202,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RecebimentoPedidoScreen;
+export default function RecebimentoPedidoScreenWrapper() {
+  return (
+    <RequireAuth userType="USER">
+      <RecebimentoPedidoScreen />
+    </RequireAuth>
+  );
+}

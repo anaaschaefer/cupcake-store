@@ -24,6 +24,7 @@ import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import CustomButtonBlack from "../components/botaoBlack";
 import CustomNavigation from "../components/CustomNavigation";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Importar o AsyncStorage
 
 const MeuPerfilScreen = () => {
   const [username, setNome] = useState("");
@@ -33,16 +34,27 @@ const MeuPerfilScreen = () => {
   const [password, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [foto, setFoto] = useState(null);
+  const [id, setId] = useState(null); // Alterado para "id"
 
   const router = useRouter();
-  const userId = 1;
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchIdAndData = async () => {
       try {
+        const storedId = await AsyncStorage.getItem("id"); // Alterado para "id"
+        if (!storedId) {
+          alert(
+            "Erro: Não foi possível recuperar o ID do usuário. Faça login novamente."
+          );
+          router.push("screens/login");
+          return;
+        }
+        setId(storedId); // Atualiza o id dinamicamente
+
         const response = await axios.get(
-          `http://localhost:8080/users/${userId}`
+          `http://localhost:8080/users/${storedId}`
         );
+        console.log(response.data);
         const { username, email, phone, address, password } = response.data;
         setNome(username);
         setEmail(email);
@@ -55,8 +67,8 @@ const MeuPerfilScreen = () => {
       }
     };
 
-    fetchUserData();
-  }, [userId]);
+    fetchIdAndData();
+  }, []); // Executa uma vez, quando o componente é montado
 
   const handleAlterarFoto = async () => {
     const permissionResult =
@@ -79,9 +91,15 @@ const MeuPerfilScreen = () => {
   };
 
   const handleSalvar = async () => {
+    if (!id) {
+      // Alterado para "id"
+      alert("Erro: ID do usuário não encontrado.");
+      return;
+    }
+
     try {
       const response = await axios.put(
-        `http://localhost:8080/users/${userId}`,
+        `http://localhost:8080/users/${id}`, // Alterado para "id"
         {
           username,
           email,
@@ -103,8 +121,18 @@ const MeuPerfilScreen = () => {
     }
   };
 
-  const handleSair = () => {
-    router.push("screens/login");
+  const handleSair = async () => {
+    try {
+      // Remover o ID do usuário armazenado no AsyncStorage
+      await AsyncStorage.removeItem("id"); // Alterado para "id" para ser consistente
+      console.log("Logout realizado, ID removido do AsyncStorage.");
+
+      // Redirecionar para a tela de login
+      router.push("screens/login");
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      alert("Erro ao sair. Tente novamente.");
+    }
   };
 
   const togglePasswordVisibility = () => {

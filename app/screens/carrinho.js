@@ -1,44 +1,104 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  Modal,
+  Button,
 } from "react-native";
 import CustomButtonBlack from "../components/botaoBlack";
 import CustomNavigation from "../components/CustomNavigation";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import axios from "axios";
 
 const CarrinhoScreen = () => {
   const router = useRouter();
+  const [itens, setItens] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const [itens, setItens] = useState([
-    { id: "1", nome: "Produto A", preco: 50.0 },
-    { id: "2", nome: "Produto B", preco: 30.0 },
-    { id: "3", nome: "Produto C", preco: 20.0 },
-  ]);
-
-  const totalPedido = itens.reduce((soma, item) => soma + item.preco, 0);
-
-  const removerItem = (id) => {
-    const novoCarrinho = itens.filter((item) => item.id !== id);
-    setItens(novoCarrinho);
-    alert("Item removido", "O item foi removido do carrinho.");
+  const getCart = async () => {
+    try {
+      const cart = JSON.parse(await AsyncStorage.getItem("cart"));
+      return cart || [];
+    } catch (e) {
+      console.error("Erro ao carregar o carrinho do AsyncStorage", e);
+      return [];
+    }
   };
 
-  const finalizarCompra = () => {
-    alert(
-      "Compra finalizada",
-      `O total da compra é R$ ${totalPedido.toFixed(2)}.`
-    );
-    router.push("screens/pagamento");
+  const carregarCarrinho = async () => {
+    const cart = await getCart();
+    setItens(cart);
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      carregarCarrinho(); // Recarrega o carrinho toda vez que a tela ganha foco
+    }, [])
+  );
+
+  const totalPedido = itens.reduce((soma, item) => soma + item.price, 0);
+
+  const removerItem = async (id) => {
+    const novoCarrinho = itens.filter((item) => item.id !== id);
+    setItens(novoCarrinho);
+
+    try {
+      await AsyncStorage.setItem("cart", JSON.stringify(novoCarrinho));
+      alert("Item removido do carrinho.");
+    } catch (e) {
+      console.error("Erro ao atualizar o carrinho no AsyncStorage", e);
+    }
+  };
+
+  const finalizarCompra = async () => {
+    try {
+      const cart = JSON.parse(await AsyncStorage.getItem("cart")) || [];
+      const userId = await AsyncStorage.getItem("id");
+      const cupcakeIds = cart.map((item) => item.id);
+
+      const response = await axios.post("http://localhost:8080/market-cart", {
+        cupcakeIds,
+        userId,
+      });
+
+      console.log("Resposta do servidor:", response.data);
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Erro ao fazer a requisição:", error.response || error);
+    }
+  };
+
+  const irParaInicio = async () => {
+    setModalVisible(false);
+    setItens([]);
+    try {
+      await AsyncStorage.removeItem("cart");
+    } catch (e) {
+      console.error("Erro ao limpar o carrinho do AsyncStorage", e);
+    }
+    router.push("screens/inicio");
+  };
+
+  const acompanharPedido = async () => {
+    setModalVisible(false);
+    setItens([]);
+    try {
+      await AsyncStorage.removeItem("cart");
+    } catch (e) {
+      console.error("Erro ao limpar o carrinho do AsyncStorage", e);
+    }
+    router.push("screens/status-pedido");
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <Text style={styles.itemNome}>{item.nome}</Text>
-      <Text style={styles.itemPreco}>R$ {item.preco.toFixed(2)}</Text>
+      <Text style={styles.itemNome}>{item.name}</Text>
+      <Text style={styles.itemPreco}>R$ {item.price.toFixed(2)}</Text>
       <TouchableOpacity
         style={styles.removerButton}
         onPress={() => removerItem(item.id)}
@@ -55,23 +115,61 @@ const CarrinhoScreen = () => {
       </TouchableOpacity>
       <Text style={styles.title}>Carrinho de Compras</Text>
 
-      {/* Lista de itens */}
       <FlatList
         data={itens}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => index.toString()} // Usa o índice como chave única
         renderItem={renderItem}
         style={styles.lista}
       />
 
-      {/* Total do pedido */}
       <View style={styles.totalContainer}>
         <Text style={styles.totalTexto}>
           Total: R$ {totalPedido.toFixed(2)}
         </Text>
       </View>
 
-      {/* Botão de finalizar compra */}
-      <CustomButtonBlack title="Finalizar pedido" onPress={finalizarCompra} />
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Botão de Fechar como 'X' */}
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              style={styles.closeButton}
+            >
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.modalText}>
+              Compra finalizada com sucesso! Total: R$ {totalPedido.toFixed(2)}
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                onPress={irParaInicio}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Voltar ao início</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={acompanharPedido}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Status do pedido</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <CustomButtonBlack
+        title="Finalizar pedido"
+        disabled={itens.length === 0}
+        onPress={finalizarCompra}
+      />
       <CustomNavigation />
     </View>
   );
@@ -147,6 +245,53 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#00000",
     marginLeft: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: 500,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#4CAF50",
+    borderRadius: 5,
+    margin: 5,
+  },
+  modalButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 5,
+    right: 10,
+    backgroundColor: "transparent", // Sem fundo
+    padding: 5,
+    zIndex: 10,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: "#555", // Cor do texto
+    fontWeight: "bold",
   },
 });
 

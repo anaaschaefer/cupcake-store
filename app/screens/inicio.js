@@ -15,13 +15,6 @@ const HomeScreen = () => {
       imagem:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOeX5ODNNWX5jQG4X305ptoIg2O2Tgq07kaw&s",
     },
-    {
-      id: "2",
-      titulo: "Dietas especiais",
-      preco: "A partir de R$7,00",
-      imagem:
-        "https://nutritotal.com.br/publico-geral/wp-content/uploads/2021/09/Receitas_Cupcake_saudavel_nutritotal_para_todos_novosite.jpg",
-    },
   ];
 
   const renderDestaque = ({ item }) => (
@@ -59,11 +52,6 @@ const HomeScreen = () => {
           <Text style={styles.bannerDescricao}>
             Deliciosos cupcakes esperando por você.
           </Text>
-          <CustomButtonBlack
-            title={"Ver mais"}
-            style={styles.bannerBotao}
-            onPress={() => router.push({ pathname: "screens/catalogo" })}
-          />
         </View>
       </View>
 

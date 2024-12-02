@@ -12,6 +12,7 @@ import CustomButtonBlack from "../components/botaoBlack";
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProdutoScreen = () => {
   const item = useLocalSearchParams();
@@ -69,6 +70,7 @@ const ProdutoScreen = () => {
   }
 
   const adicionarAoCarrinho = () => {
+    addToCart(produto);
     setModalVisible(true);
   };
 
@@ -80,6 +82,16 @@ const ProdutoScreen = () => {
   const continuarComprando = () => {
     setModalVisible(false);
     router.push("screens/catalogo");
+  };
+
+  const addToCart = async (id) => {
+    try {
+      const cart = JSON.parse(await AsyncStorage.getItem("cart")) || [];
+      const updatedCart = [...cart, id];
+      await AsyncStorage.setItem("cart", JSON.stringify(updatedCart));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (

@@ -1,10 +1,22 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
-const CustomButtonBlack = ({ title, onPress, style, textStyle }) => {
+const CustomButtonBlack = ({ title, onPress, style, textStyle, disabled }) => {
   return (
-    <TouchableOpacity style={[styles.botaoBlack, style]} onPress={onPress}>
-      <Text style={[styles.botaoBlackTexto, textStyle]}>{title}</Text>
+    <TouchableOpacity
+      style={[styles.botaoBlack, style]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <Text
+        style={[
+          styles.botaoBlackTexto,
+          textStyle,
+          disabled && styles.textDisabled,
+        ]}
+      >
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -21,6 +33,12 @@ const styles = StyleSheet.create({
   botaoBlackTexto: {
     fontSize: 16,
     color: "#fff",
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  textDisabled: {
+    color: "#888",
   },
 });
 

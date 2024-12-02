@@ -1,37 +1,81 @@
 import React from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
-import { Link } from "expo-router";
+import { Link, usePathname } from "expo-router";
 
 const CustomNavigation = ({ userProfile }) => {
+  const pathname = usePathname(); // Obtém a rota atual
   const isAdmin = userProfile === "admin"; // Verifica se o perfil do usuário é administrador
+
+  // Função para verificar se deve navegar
+  const shouldNavigate = (targetPath) => pathname !== targetPath;
 
   return (
     <View style={styles.navegacao}>
-      <Link href="screens/inicio">
-        <Text style={styles.navegacaoTexto}>Início</Text>
-      </Link>
-      <Link href="screens/catalogo">
-        <Text style={styles.navegacaoTexto}>Categorias</Text>
-      </Link>
-      <Link href="screens/status-pedido">
-        <Text style={styles.navegacaoTexto}>Status pedidos</Text>
-      </Link>
-      <Link href="screens/carrinho">
-        <Text style={styles.navegacaoTexto}>Carrinho</Text>
-      </Link>
+      {shouldNavigate("/screens/inicio") ? (
+        <Link href="screens/inicio">
+          <Text style={styles.navegacaoTexto}>Início</Text>
+        </Link>
+      ) : (
+        <Text style={[styles.navegacaoTexto, styles.active]}>Início</Text>
+      )}
+
+      {shouldNavigate("/screens/catalogo") ? (
+        <Link href="screens/catalogo">
+          <Text style={styles.navegacaoTexto}>Catálogo</Text>
+        </Link>
+      ) : (
+        <Text style={[styles.navegacaoTexto, styles.active]}>Catálogo</Text>
+      )}
+
+      {shouldNavigate("/screens/status-pedido") ? (
+        <Link href="screens/status-pedido">
+          <Text style={styles.navegacaoTexto}>Status pedidos</Text>
+        </Link>
+      ) : (
+        <Text style={[styles.navegacaoTexto, styles.active]}>
+          Status pedidos
+        </Text>
+      )}
+
+      {shouldNavigate("/screens/carrinho") ? (
+        <Link href="screens/carrinho">
+          <Text style={styles.navegacaoTexto}>Carrinho</Text>
+        </Link>
+      ) : (
+        <Text style={[styles.navegacaoTexto, styles.active]}>Carrinho</Text>
+      )}
+
       {isAdmin && (
         <>
-          <Link href="screens/cadastro-produto">
-            <Text style={styles.navegacaoTexto}>Cadastro de produto</Text>
-          </Link>
-          <Link href="screens/pedidos">
-            <Text style={styles.navegacaoTexto}>Pedidos recebidos</Text>
-          </Link>
+          {shouldNavigate("/screens/cadastro-produto") ? (
+            <Link href="screens/cadastro-produto">
+              <Text style={styles.navegacaoTexto}>Cadastro de produto</Text>
+            </Link>
+          ) : (
+            <Text style={[styles.navegacaoTexto, styles.active]}>
+              Cadastro de produto
+            </Text>
+          )}
+
+          {shouldNavigate("/screens/pedidos") ? (
+            <Link href="screens/pedidos">
+              <Text style={styles.navegacaoTexto}>Pedidos recebidos</Text>
+            </Link>
+          ) : (
+            <Text style={[styles.navegacaoTexto, styles.active]}>
+              Pedidos recebidos
+            </Text>
+          )}
         </>
       )}
-      <Link href="screens/meu-perfil">
-        <Text style={styles.navegacaoTexto}>Perfil</Text>
-      </Link>
+
+      {shouldNavigate("/screens/meu-perfil") ? (
+        <Link href="screens/meu-perfil">
+          <Text style={styles.navegacaoTexto}>Perfil</Text>
+        </Link>
+      ) : (
+        <Text style={[styles.navegacaoTexto, styles.active]}>Perfil</Text>
+      )}
     </View>
   );
 };
@@ -51,11 +95,17 @@ const styles = StyleSheet.create({
     width: width - 20,
     borderRadius: 10,
     marginHorizontal: 10,
+    width: "100%",
   },
   navegacaoTexto: {
     fontSize: 14,
     color: "#333",
     padding: 5,
+  },
+  active: {
+    fontWeight: "bold",
+    color: "#000",
+    textDecorationLine: "underline",
   },
 });
 

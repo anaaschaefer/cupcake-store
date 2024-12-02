@@ -81,7 +81,7 @@ const CatalogoScreen = () => {
         <FlatList
           data={produtos}
           renderItem={renderProduto}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => String(item.id)}
           contentContainerStyle={styles.lista}
         />
       )}

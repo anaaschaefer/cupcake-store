@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,32 +6,37 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import CustomNavigation from "../components/CustomNavigation";
 import { useRouter } from "expo-router";
 
 const RecebimentoPedidoScreen = () => {
   const router = useRouter();
+  const [pedidos, setPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [pedidos, setPedidos] = useState([
-    {
-      id: "1",
-      numero: "#33333",
-      cliente: "João Silva",
-      status: "Aguardando confirmação",
-      produtos: [
-        { id: "p1", nome: "Cupcake Chocolate", quantidade: 2 },
-        { id: "p2", nome: "Cupcake Baunilha", quantidade: 1 },
-      ],
-    },
-    {
-      id: "2",
-      numero: "#33334",
-      cliente: "Maria Souza",
-      status: "Aguardando confirmação",
-      produtos: [{ id: "p3", nome: "Cupcake Red Velvet", quantidade: 3 }],
-    },
-  ]);
+  // Função para buscar os pedidos do backend
+  const fetchPedidos = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("http://localhost:8080/market-cart");
+      if (!response.ok) {
+        throw new Error("Erro ao carregar pedidos");
+      }
+      const data = await response.json();
+      setPedidos(Array.isArray(data) ? data : []); // Garante que pedidos será um array
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPedidos();
+  }, []);
 
   const alterarParaPreparacao = (id) => {
     setPedidos((pedidosAtuais) =>
@@ -90,14 +95,22 @@ const RecebimentoPedidoScreen = () => {
         <Text style={styles.cabecalhoBotao}>Voltar</Text>
       </TouchableOpacity>
       <Text style={styles.cabecalho}>Pedidos recebidos</Text>
-      <FlatList
-        data={pedidos}
-        keyExtractor={(item) => item.id}
-        renderItem={renderPedido}
-        ListEmptyComponent={
-          <Text style={styles.textoVazio}>Nenhum pedido disponível.</Text>
-        }
-      />
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#9B6C67" />
+      ) : error ? (
+        <Text style={styles.errorTexto}>{error}</Text>
+      ) : (
+        <FlatList
+          data={pedidos || []} // Garante que será um array
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderPedido}
+          ListEmptyComponent={
+            <Text style={styles.textoVazio}>Nenhum pedido disponível.</Text>
+          }
+        />
+      )}
+
       <CustomNavigation style={styles.navigation} />
     </View>
   );
@@ -171,6 +184,12 @@ const styles = StyleSheet.create({
   cabecalhoBotao: {
     fontSize: 16,
     marginLeft: 20,
+  },
+  errorTexto: {
+    fontSize: 16,
+    color: "red",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 

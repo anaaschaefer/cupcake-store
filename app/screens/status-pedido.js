@@ -1,28 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import CustomNavigation from "../components/CustomNavigation";
 import { useRouter } from "expo-router";
 
 const PedidosScreen = () => {
   const router = useRouter();
+  const [historicoPedidos, setHistoricoPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const historicoPedidos = [
-    { id: "1", numero: "20232", data: "10/10/23", status: "Entregue" },
-    { id: "2", numero: "32111", data: "20/04/24", status: "Entregue" },
-    { id: "3", numero: "33111", data: "10/05/24", status: "Entregue" },
-    { id: "4", numero: "33333", data: "20/05/24", status: "Preparação" },
-  ];
+  // Função para buscar os pedidos da API
+  const fetchPedidos = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/market-cart");
+      if (!response.ok) {
+        throw new Error("Erro ao carregar pedidos");
+      }
+      const createdAt = await response.json();
+      setHistoricoPedidos(createdAt);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPedidos();
+  }, []);
 
   const renderPedido = ({ item }) => (
     <View style={styles.historicoItem}>
       <Text style={styles.historicoTexto}>
-        Pedido #{item.numero} - {item.data} - {item.status}
+        Pedido #{item.id} - {item.createdAt} - {item.ticketStatus}
       </Text>
     </View>
   );
@@ -38,28 +55,22 @@ const PedidosScreen = () => {
         <Text style={styles.cabecalhoBotao}>Voltar</Text>
       </TouchableOpacity>
 
-      {/* Mensagem de confirmação */}
-      <View style={styles.confirmacao}>
-        <Text style={styles.confirmacaoTitulo}>Pedido confirmado</Text>
-        <Text style={styles.confirmacaoMensagem}>
-          Seu pedido foi confirmado com sucesso!
-        </Text>
-        <Text style={styles.confirmacaoPedido}>
-          Pedido <Text style={styles.pedidoNumero}>#33333</Text>
-        </Text>
-        <Text style={styles.confirmacaoStatus}>
-          Status: <Text style={styles.statusPreparacao}>Em preparação</Text>
-        </Text>
-      </View>
-
       {/* Histórico de pedidos */}
       <Text style={styles.historicoTitulo}>Histórico de pedidos</Text>
-      <FlatList
-        data={historicoPedidos}
-        renderItem={renderPedido}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.historicoLista}
-      />
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#9B6C67" />
+      ) : error ? (
+        <Text style={styles.errorTexto}>{error}</Text>
+      ) : (
+        <FlatList
+          data={historicoPedidos}
+          renderItem={renderPedido}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.historicoLista}
+        />
+      )}
+
       <CustomNavigation />
     </View>
   );
@@ -134,6 +145,11 @@ const styles = StyleSheet.create({
   historicoTexto: {
     fontSize: 16,
     color: "#333",
+  },
+  errorTexto: {
+    fontSize: 16,
+    color: "red",
+    textAlign: "center",
   },
 });
 

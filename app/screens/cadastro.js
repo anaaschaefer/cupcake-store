@@ -37,7 +37,7 @@ const CadastroScreen = () => {
         });
         if (response.status === 201 || response.status === 200) {
           alert("Cadastro realizado com sucesso!");
-          router.push("screens/meu-perfil");
+          router.push("screens/login");
         } else {
           alert("Ocorreu um erro ao cadastrar. Tente novamente.");
         }

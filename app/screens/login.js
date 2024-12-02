@@ -13,6 +13,7 @@ import {
   faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const LoginScreen = () => {
@@ -29,6 +30,8 @@ const LoginScreen = () => {
       });
 
       if (response.status === 200) {
+        const id = response.data.id; // Supondo que o backend retorne userId
+        await AsyncStorage.setItem("id", id.toString());
         router.push("screens/inicio");
       } else {
         alert("Erro inesperado! Tente novamente.");

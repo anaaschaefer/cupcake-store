@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
 
 export default function RecebimentoPedidoScreenWrapper() {
   return (
-    <RequireAuth userType="USER">
+    <RequireAuth userType="ADMIN">
       <RecebimentoPedidoScreen />
     </RequireAuth>
   );

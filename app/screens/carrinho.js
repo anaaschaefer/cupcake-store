@@ -136,14 +136,6 @@ const CarrinhoScreen = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            {/* Botão de Fechar como 'X' */}
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={styles.closeButton}
-            >
-              <Text style={styles.closeButtonText}>X</Text>
-            </TouchableOpacity>
-
             <Text style={styles.modalText}>
               Compra finalizada com sucesso! Total: R$ {totalPedido.toFixed(2)}
             </Text>
